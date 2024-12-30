@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulario Orden de Compra</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, button { margin: 5px; padding: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        #itemsTable { margin-top: 20px; }
+        .center { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Orden de Compra</h1>
+    <form id="orderForm" onsubmit="enviarDatos(event)">
+        <label for="razonSocial">Razón Social:</label><br>
+        <input type="text" id="razonSocial" required><br>
+
+        <label for="generadoPor">Generado Por:</label><br>
+        <input type="text" id="generadoPor" required><br>
+
+        <label for="direccion">Dirección:</label><br>
+        <input type="text" id="direccion" required><br>
+
+        <h3>Items</h3>
+        <table id="itemsTable">
+            <thead>
+                <tr>
+                    <th>Nombre del Item</th>
+                    <th>Costo por Unidad ($)</th>
+                    <th>Cantidad</th>
+                    <th>Importe ($)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" name="nombreItem" required></td>
+                    <td><input type="number" name="costoUnidad" step="0.01" required oninput="calcularImporte(this)"></td>
+                    <td><input type="number" name="cantidad" step="1" required oninput="calcularImporte(this)"></td>
+                    <td><input type="number" name="importe" readonly></td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" onclick="agregarItem()">Agregar Item</button>
+
+        <h3>Resumen</h3>
+        <label for="subtotal">Subtotal antes de descuento ($):</label><br>
+        <input type="number" id="subtotal" readonly><br>
+
+        <label for="descuento">Descuento (%):</label><br>
+        <input type="number" id="descuento" step="1" value="0" oninput="calcularTotales()"><br>
+
+        <label for="igv">IGV (18%):</label><br>
+        <input type="number" id="igv" readonly><br>
+
+        <label for="total">Total ($):</label><br>
+        <input type="number" id="total" readonly><br>
+
+        <button type="submit">Enviar Orden</button>
+    </form>
+
+    <button type="button" onclick="generarPDF()">Generar PDF</button>
+
+
+    <script>
+        let maxItems = 20;
+
+        // Función para agregar un nuevo item
+        function agregarItem() {
+            const table = document.getElementById('itemsTable').getElementsByTagName('tbody')[0];
+            const rowCount = table.rows.length;
+            
+            if (rowCount >= maxItems) {
+                alert('No puedes agregar más de 20 items.');
+                return;
+            }
+
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td><input type="text" name="nombreItem" required></td>
+                <td><input type="number" name="costoUnidad" step="0.01" required oninput="calcularImporte(this)"></td>
+                <td><input type="number" name="cantidad" step="1" required oninput="calcularImporte(this)"></td>
+                <td><input type="number" name="importe" readonly></td>
+            `;
+        }
+
+        // Función para calcular el importe y actualizar el subtotal
+        function calcularImporte(input) {
+            const row = input.closest('tr');
+            const costoUnidad = parseFloat(row.querySelector('input[name="costoUnidad"]').value || 0);
+            const cantidad = parseInt(row.querySelector('input[name="cantidad"]').value || 0);
+            const importe = costoUnidad * cantidad;
+            row.querySelector('input[name="importe"]').value = importe.toFixed(2);
+            actualizarSubtotal();
+        }
+
+        // Función para actualizar el subtotal
+        function actualizarSubtotal() {
+            const table = document.getElementById('itemsTable');
+            const rows = table.getElementsByTagName('tbody')[0].rows;
+            let subtotal = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                const importe = parseFloat(rows[i].querySelector('input[name="importe"]').value || 0);
+                subtotal += importe;
+            }
+
+            document.getElementById('subtotal').value = subtotal.toFixed(2);
+            calcularTotales();
+        }
+
+        // Función para calcular los totales
+        function calcularTotales() {
+            const subtotal = parseFloat(document.getElementById('subtotal').value || 0);
+            const descuento = parseFloat(document.getElementById('descuento').value || 0);
+            const igv = subtotal * 0.18;
+            const total = subtotal - (subtotal * (descuento / 100)) + igv;
+
+            document.getElementById('igv').value = igv.toFixed(2);
+            document.getElementById('total').value = total.toFixed(2);
+        }
+
+        // Función para enviar los datos a Power Automate
+        async function enviarDatos(event) {
+            event.preventDefault();
+
+            const form = document.getElementById('orderForm');
+            const items = [];
+            const rows = document.getElementById('itemsTable').getElementsByTagName('tbody')[0].rows;
+
+            for (let i = 0; i < rows.length; i++) {
+                const item = {
+                    Nombre: rows[i].querySelector('input[name="nombreItem"]').value,
+                    CostoUnidad: parseFloat(rows[i].querySelector('input[name="costoUnidad"]').value || 0),
+                    Cantidad: parseInt(rows[i].querySelector('input[name="cantidad"]').value || 0),
+                    Importe: parseFloat(rows[i].querySelector('input[name="importe"]').value || 0)
+                };
+                items.push(item);
+            }
+
+            const data = {
+                RazonSocial: form.razonSocial.value,
+                GeneradoPor: form.generadoPor.value,
+                Direccion: form.direccion.value,
+                Items: items,
+                Subtotal: parseFloat(form.subtotal.value || 0),
+                Descuento: parseFloat(form.descuento.value || 0),
+                IGV: parseFloat(form.igv.value || 0),
+                Total: parseFloat(form.total.value || 0)
+            };
+
+            try {
+                const response = await fetch("https://prod-45.westus.logic.azure.com:443/workflows/0506e0170e3d4aa79264692b9828849e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=0Ux__TkrR3HDaZ9-XJAJ2DT5ewSpwDcMUFFL6jCd7B4", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert("Orden enviada exitosamente.");
+                } else {
+                    alert("Error al enviar la orden.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Hubo un error al enviar la orden.");
+            }
+        }
+    </script>
+    <script>
+        async function generarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const razonSocial = document.getElementById('razonSocial').value;
+    const generadoPor = document.getElementById('generadoPor').value;
+    const direccion = document.getElementById('direccion').value;
+    const descuento = document.getElementById('descuento').value || 0;
+    const subtotal = document.getElementById('subtotal').value || 0;
+    const igv = document.getElementById('igv').value || 0;
+    const total = document.getElementById('total').value || 0;
+
+    let y = 10;
+
+    // Encabezado
+    doc.setFontSize(16);
+    doc.text('Orden de Compra', 10, y);
+    y += 10;
+
+    // Información de la orden
+    doc.setFontSize(12);
+    doc.text(`Razón Social: ${razonSocial}`, 10, y);
+    y += 10;
+    doc.text(`Generado Por: ${generadoPor}`, 10, y);
+    y += 10;
+    doc.text(`Dirección: ${direccion}`, 10, y);
+    y += 10;
+
+    // Tabla de Items
+    doc.setFontSize(14);
+    doc.text('Items:', 10, y);
+    y += 10;
+
+    doc.setFontSize(12);
+    doc.text('Nombre del Item   | Costo Unidad ($) | Cantidad | Importe ($)', 10, y);
+    y += 10;
+
+    const rows = document.getElementById('itemsTable').getElementsByTagName('tbody')[0].rows;
+
+    for (let i = 0; i < rows.length; i++) {
+        const nombreItem = rows[i].querySelector('input[name="nombreItem"]').value;
+        const costoUnidad = rows[i].querySelector('input[name="costoUnidad"]').value;
+        const cantidad = rows[i].querySelector('input[name="cantidad"]').value;
+        const importe = rows[i].querySelector('input[name="importe"]').value;
+
+        doc.text(`${nombreItem} | ${costoUnidad} | ${cantidad} | ${importe}`, 10, y);
+        y += 10;
+    }
+
+    // Resumen de Totales
+    y += 10;
+    doc.setFontSize(14);
+    doc.text('Resumen:', 10, y);
+    y += 10;
+
+    doc.setFontSize(12);
+    doc.text(`Subtotal antes de descuento: $${subtotal}`, 10, y);
+    y += 10;
+    doc.text(`Descuento: ${descuento}%`, 10, y);
+    y += 10;
+    doc.text(`IGV (18%): $${igv}`, 10, y);
+    y += 10;
+    doc.text(`Total: $${total}`, 10, y);
+
+    // Guardar PDF
+    doc.save('Orden_Compra.pdf');
+}
+
+    </script>
+</body>
+</html>
