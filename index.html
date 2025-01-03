@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Orden de Compra</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <style>
+<style>
+    
         table {
             border-collapse: separate;
             border-spacing: 0;
@@ -31,107 +32,127 @@
         table tbody tr:last-child td:last-child {
             border-bottom-right-radius: 10px;
         }
-    </style>
+
+        .input-group-text {
+        font-weight: bold;
+        background-color: #f8f9fa; /* Color neutro para el separador */
+    }
+    .input-group input {
+        text-align: center;
+    }
+
+    .card{
+       
+
+    }
+
+</style>
 
 </head>
 <body>
     <div class="container my-5">
-        <h2 class="text-center mb-4">Orden de compra</h2>
-        <form id="orderForm" onsubmit="enviarDatos(event)" class="needs-validation" novalidate>
+        <form id="orderForm" onsubmit="enviarDatos(event)">
+            <div class="card" style="padding: 20px;">
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="codigoRequerimiento" class="form-label" style="font-weight: bolder;">Código de Requerimiento:</label>
-                    <input type="text" id="codigoRequerimiento" class="form-control" required>
+                    <input type="text" id="codigoRequerimiento" class="form-control">
                 </div>
                 <div class="col-md-6">
                     <label for="razonSocial" class="form-label" style="font-weight: bolder;">Razón Social:</label>
                     <input type="text" id="razonSocial" class="form-control" required>
                 </div>
-                
             </div>
-
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="ruc" class="form-label"  style="font-weight: bolder;">RUC:</label>
+                    <label for="ruc" class="form-label" style="font-weight: bolder;">RUC:</label>
                     <input type="text" id="ruc" class="form-control" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="direccion" class="form-label"  style="font-weight: bolder;">Dirección:</label>
+                    <label for="direccion" class="form-label" style="font-weight: bolder;">Dirección:</label>
                     <input type="text" id="direccion" class="form-control" required>
                 </div>
             </div>
-
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="moneda" class="form-label"  style="font-weight: bolder;">Tipo de Moneda:</label>
-                    <select id="moneda" class="form-select" onchange="actualizarSimbolo()">
+                    <label for="moneda" class="form-label" style="font-weight: bolder;">Tipo de Moneda:</label>
+                    <select id="moneda" class="form-select">
                         <option value="S/.">Soles (S/.)</option>
                         <option value="$">Dólares ($)</option>
                     </select>
                 </div>
-                
+                <div class="col-md-6">
+                    <label for="mpago" class="form-label" style="font-weight: bolder;">Método de pago</label>
+                    <input type="text" id="mpago" class="form-control" required>
+                </div>
             </div>
+        </div>
             <br>
             <h4>Items</h4>
             <table class="table table-bordered" id="itemsTable">
-                <thead class="table-light">
+                <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>Cantidad</th>
-                        <th>Valor Unitario (<span id="simboloMoneda">S/.</span>)</th>
-                        <th>Importe (<span id="simboloMoneda">S/.</span>)</th>
+                        <th>Valor Unitario</th>
+                        <th>Importe</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td><input type="text" name="nombre" class="form-control" required></td>
-                        <td><input type="number" name="cantidad" class="form-control" step="1" required oninput="calcularImporte(this)"></td>
-                        <td><input type="number" name="costoUnidad" class="form-control" step="0.01" required oninput="calcularImporte(this)"></td>
+                        <td><input type="number" name="cantidad" class="form-control" required oninput="calcularImporte(this)"></td>
+                        <td><input type="number" name="costo" class="form-control" required oninput="calcularImporte(this)"></td>
                         <td><input type="number" name="importe" class="form-control" readonly></td>
-                        <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarItem(this)">Eliminar</button></td>
+                        <td><button type="button" class="btn btn-danger" onclick="eliminarItem(this)">Eliminar</button></td>
                     </tr>
                 </tbody>
             </table>
-            <button type="button" class="btn mb-3" style=" background-color: #4A4A4A; color: white;" onclick="agregarItem()">Agregar Item</button>
-
+            <button type="button" class="btn btn-dark mb-3" onclick="agregarItem()">Agregar Item</button>
             <h4>Resumen</h4>
             <div class="row mb-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="subtotal" class="form-label">Subtotal (<span id="simboloSubtotal">S/.</span>):</label>
-                    <input type="number" id="subtotal" class="form-control" readonly>
+                    <input type="text" id="subtotal" class="form-control" readonly>
                 </div>
-                <div class="col-md-4">
-                    <label for="descuento" class="form-label">Descuento (%):</label>
-                    <input type="number" id="descuento" class="form-control" step="0.01" value="0" oninput="calcularTotales()">
+                <div class="col-md-3">
+                    <label for="descuento" class="form-label">Descuento (% y valor):</label>
+                    <div class="input-group">
+                        <input type="number" id="descuentoPorcentaje" class="form-control" placeholder="%" value="0" oninput="calcularTotales()">
+                        <span class="input-group-text">=</span>
+                        <input type="text" id="descuentoValor" class="form-control" placeholder="Valor" readonly>
+                    </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <label for="igv" class="form-label">IGV (18% y valor):</label>
+                    <div class="input-group">
+                        <input type="text" id="igvPorcentaje" class="form-control" value="18%" readonly>
+                        <span class="input-group-text">=</span>
+                        <input type="text" id="igvValor" class="form-control" placeholder="Valor" readonly>
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <label for="total" class="form-label">Total (<span id="simboloTotal">S/.</span>):</label>
-                    <input type="number" id="total" class="form-control" readonly>
+                    <input type="text" id="total" class="form-control" readonly>
                 </div>
             </div>
-
-            <center><button type="submit" class="btn w-50" style="background-color:#4A4A4A
-; color: white; font-weight: bold;">Generar orden</button></center>
+            
+            
+            <center><button type="submit" style="background-color: #4A4A4A; border: none;" class="btn btn-success w-50">Generar Orden</button></center>
         </form>
     </div>
 
     <script>
-        let maxItems = 20;
-
         function agregarItem() {
             const table = document.querySelector('#itemsTable tbody');
-            if (table.rows.length >= maxItems) {
-                Swal.fire('Error', 'No puedes agregar más de 20 items.', 'error');
-                return;
-            }
             const row = table.insertRow();
             row.innerHTML = `
                 <td><input type="text" name="nombre" class="form-control" required></td>
-                <td><input type="number" name="cantidad" class="form-control" step="1" required oninput="calcularImporte(this)"></td>
-                <td><input type="number" name="costoUnidad" class="form-control" step="0.01" required oninput="calcularImporte(this)"></td>
+                <td><input type="number" name="cantidad" class="form-control" required oninput="calcularImporte(this)"></td>
+                <td><input type="number" name="costo" class="form-control" required oninput="calcularImporte(this)"></td>
                 <td><input type="number" name="importe" class="form-control" readonly></td>
-                <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarItem(this)">Eliminar</button></td>
+                <td><button type="button" class="btn btn-danger" onclick="eliminarItem(this)">Eliminar</button></td>
             `;
         }
 
@@ -144,71 +165,111 @@
         function calcularImporte(input) {
             const row = input.closest('tr');
             const cantidad = parseFloat(row.querySelector('input[name="cantidad"]').value || 0);
-            const costoUnidad = parseFloat(row.querySelector('input[name="costoUnidad"]').value || 0);
-            row.querySelector('input[name="importe"]').value = (cantidad * costoUnidad).toFixed(2);
+            const costo = parseFloat(row.querySelector('input[name="costo"]').value || 0);
+            const importe = cantidad * costo;
+            row.querySelector('input[name="importe"]').value = importe.toFixed(2);
             actualizarSubtotal();
         }
 
-        function actualizarSubtotal() {
-            let subtotal = 0;
-            document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
-                subtotal += parseFloat(row.querySelector('input[name="importe"]').value || 0);
-            });
-            document.getElementById('subtotal').value = subtotal.toFixed(2);
-            calcularTotales();
+         function actualizarSubtotal() {
+                            let subtotal = 0;
+                            document.querySelectorAll('#itemsTable tbody tr').forEach(row => {
+                                subtotal += parseFloat(row.querySelector('input[name="importe"]').value || 0);
+                            });
+                            document.getElementById('subtotal').value = subtotal.toFixed(2);
+                            calcularTotales();
+                        }
+
+                        function calcularTotales() {
+                            const subtotal = parseFloat(document.getElementById('subtotal').value || 0);
+                            const descuentoPorcentaje = parseFloat(document.getElementById('descuentoPorcentaje').value || 0); // Editable
+                            const igvPorcentaje = 18; // Fijo
+
+                            // Calcular el monto del descuento
+                            const descuentoValor = subtotal * (descuentoPorcentaje / 100);
+
+                            // Calcular el IGV sobre el subtotal menos el descuento
+                            const subtotalConDescuento = subtotal - descuentoValor;
+                            const igvValor = subtotalConDescuento * (igvPorcentaje / 100);
+
+                            // Total = Subtotal - Descuento + IGV
+                            const total = subtotalConDescuento + igvValor;
+
+                            // Mostrar los valores en los campos divididos
+                            document.getElementById('descuentoValor').value = `${descuentoValor.toFixed(2)}`;
+                            document.getElementById('igvValor').value = `${igvValor.toFixed(2)}`;
+                            document.getElementById('total').value = total.toFixed(2);
+                        }
+
+
+                        async function enviarDatos(event) {
+    event.preventDefault();
+
+    try {
+        // Logs para verificar si los elementos existen
+        console.log("Código de Requerimiento:", document.getElementById('codigoRequerimiento'));
+        console.log("Razón Social:", document.getElementById('razonSocial'));
+        console.log("RUC:", document.getElementById('ruc'));
+        console.log("Dirección:", document.getElementById('direccion'));
+        console.log("Moneda:", document.getElementById('moneda'));
+        console.log("Subtotal:", document.getElementById('subtotal'));
+        console.log("Descuento Porcentaje:", document.getElementById('descuentoPorcentaje'));
+        console.log("Descuento Valor:", document.getElementById('descuentoValor'));
+        console.log("IGV Valor:", document.getElementById('igvValor'));
+        console.log("Total:", document.getElementById('total'));
+
+        // Verificar si algún elemento requerido es nulo
+        if (!document.getElementById('razonSocial') || !document.getElementById('ruc') || !document.getElementById('direccion')) {
+            throw new Error("Uno o más campos obligatorios no están presentes en el DOM.");
         }
 
-        function calcularTotales() {
-            const subtotal = parseFloat(document.getElementById('subtotal').value || 0);
-            const descuento = parseFloat(document.getElementById('descuento').value || 0);
-            const total = subtotal - (subtotal * (descuento / 100));
-            document.getElementById('total').value = total.toFixed(2);
-        }
+        const data = {
+            codigoRequerimiento: document.getElementById('codigoRequerimiento')?.value || '',
+            razonSocial: document.getElementById('razonSocial')?.value,
+            ruc: document.getElementById('ruc')?.value,
+            direccion: document.getElementById('direccion')?.value,
+            moneda: document.getElementById('moneda')?.value,
+            mpago: document.getElementById('mpago')?.value,
+            subtotal: parseFloat(document.getElementById('subtotal')?.value || 0),
+            descuento: {
+                valor: parseFloat(document.getElementById('descuentoValor')?.value || 0),
+                porcentaje: parseFloat(document.getElementById('descuentoPorcentaje')?.value || 0)
+            },
+            igv: {
+                valor: parseFloat(document.getElementById('igvValor')?.value || 0),
+                porcentaje: 18
+            },
+            total: parseFloat(document.getElementById('total')?.value || 0),
+            items: Array.from(document.querySelectorAll('#itemsTable tbody tr')).map(row => ({
+                nombre: row.querySelector('input[name="nombre"]')?.value,
+                cantidad: parseFloat(row.querySelector('input[name="cantidad"]')?.value || 0),
+                costo: parseFloat(row.querySelector('input[name="costo"]')?.value || 0),
+                importe: parseFloat(row.querySelector('input[name="importe"]')?.value || 0)
+            }))
+        };
 
-        function actualizarSimbolo() {
-            const moneda = document.getElementById('moneda').value;
-            document.querySelectorAll('#simboloMoneda, #simboloSubtotal, #simboloTotal').forEach(el => el.textContent = moneda);
+        console.log("Datos a enviar:", data);
+
+        const response = await fetch('https://prod-45.westus.logic.azure.com:443/workflows/0506e0170e3d4aa79264692b9828849e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=0Ux__TkrR3HDaZ9-XJAJ2DT5ewSpwDcMUFFL6jCd7B4', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            Swal.fire('¡Éxito!', 'Orden enviada correctamente.', 'success');
+            document.getElementById('orderForm').reset();
             actualizarSubtotal();
+        } else {
+            const errorText = await response.text();
+            Swal.fire('Error', `Hubo un problema: ${errorText}`, 'error');
         }
+    } catch (error) {
+        console.error("Error en enviarDatos:", error.message);
+        Swal.fire('Error', `Hubo un error al procesar: ${error.message}`, 'error');
+    }
+}
 
-        async function enviarDatos(event) {
-            event.preventDefault();
-            const data = {
-                razonSocial: document.getElementById('razonSocial').value,
-                ruc: document.getElementById('ruc').value,
-                direccion: document.getElementById('direccion').value,
-                moneda: document.getElementById('moneda').value,
-                codigoRequerimiento: document.getElementById('codigoRequerimiento').value,
-                subtotal: parseFloat(document.getElementById('subtotal').value || 0),
-                descuento: parseFloat(document.getElementById('descuento').value || 0),
-                total: parseFloat(document.getElementById('total').value || 0),
-                items: Array.from(document.querySelectorAll('#itemsTable tbody tr')).map(row => ({
-                    nombre: row.querySelector('input[name="nombre"]').value,
-                    cantidad: parseFloat(row.querySelector('input[name="cantidad"]').value || 0),
-                    costo: parseFloat(row.querySelector('input[name="costoUnidad"]').value || 0),
-                    importe: parseFloat(row.querySelector('input[name="importe"]').value || 0),
-                }))
-            };
-
-            try {
-                const response = await fetch("https://prod-45.westus.logic.azure.com:443/workflows/0506e0170e3d4aa79264692b9828849e/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=0Ux__TkrR3HDaZ9-XJAJ2DT5ewSpwDcMUFFL6jCd7B4", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    Swal.fire('¡Éxito!', 'Orden enviada exitosamente.', 'success');
-                    document.getElementById('orderForm').reset();
-                    actualizarSimbolo();
-                } else {
-                    const error = await response.text();
-                    Swal.fire('Error', `Error al enviar la orden: ${error}`, 'error');
-                }
-            } catch (error) {
-                Swal.fire('Error', `Hubo un error al enviar la orden: ${error}`, 'error');
-            }
-        }
     </script>
 </body>
 </html>
