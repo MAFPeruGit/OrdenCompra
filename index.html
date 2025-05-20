@@ -145,13 +145,12 @@
             const row = table.insertRow();
             row.innerHTML = `
                 <td><input type="text" name="nombre" class="form-control" required></td>
-                <td><input type="number" name="cantidad" class="form-control" required oninput="calcularImporte(this)"></td>
-                <td><input type="number" name="costo" class="form-control" required oninput="calcularImporte(this)"></td>
-                <td><input type="number" name="importe" class="form-control" readonly></td>
+                <td><input type="number" name="cantidad" step="1" class="form-control" required oninput="calcularImporte(this)"></td>
+                <td><input type="number" name="costo" step="0.01" class="form-control" required oninput="calcularImporte(this)"></td>
+                <td><input type="number" name="importe" step="0.01" class="form-control" readonly></td>
                 <td><button type="button" class="btn btn-danger" onclick="eliminarItem(this)">Eliminar</button></td>
             `;
         }
-
         function eliminarItem(button) {
             const row = button.closest('tr');
             row.remove();
