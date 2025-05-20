@@ -99,11 +99,11 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><input type="text" name="nombre" class="form-control" required></td>
-                        <td><input type="number" name="cantidad" class="form-control" required oninput="calcularImporte(this)"></td>
-                        <td><input type="number" name="costo" class="form-control" required oninput="calcularImporte(this)"></td>
-                        <td><input type="number" name="importe" class="form-control" readonly></td>
-                        <td><button type="button" class="btn btn-danger" onclick="eliminarItem(this)">Eliminar</button></td>
+                       <td><input type="text" name="nombre" class="form-control" required></td>
+                       <td><input type="text" name="cantidad" class="form-control" required oninput="validarEntero(this); calcularImporte(this)"></td>
+                       <td><input type="text" name="costo" class="form-control" required oninput="validarDecimal(this); calcularImporte(this)"></td>
+                       <td><input type="text" name="importe" class="form-control" readonly></td>
+                       <td><button type="button" class="btn btn-danger" onclick="eliminarItem(this)">Eliminar</button></td>
                     </tr>
                 </tbody>
             </table>
