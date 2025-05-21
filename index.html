@@ -130,9 +130,9 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <label for="igv" class="form-label">IGV (18% y Valor):</label>
+                <label for="igv" class="form-label">IGV (% y Valor):</label>
                 <div class="input-group">
-                    <input type="text" id="igvPorcentaje" class="form-control" value="18%" readonly>
+                    <input type="text" id="igvPorcentaje" class="form-control" value="0" oninput="calcularTotales()">
                     <span class="input-group-text">=</span>
                     <input type="text" id="igvValor" class="form-control" placeholder="Valor" readonly style="background-color: #e5e5e5;">
                 </div>
@@ -191,11 +191,14 @@ function actualizarSubtotal() {
 function calcularTotales() {
     const subtotal = parseFloat(document.getElementById('subtotal').value || 0);
     const descuentoPorcentaje = parseFloat(document.getElementById('descuentoPorcentaje').value || 0);
-    const igvPorcentaje = 18;
+    let igvPorcentaje = parseFloat(document.getElementById('igvPorcentaje').value || 0);
+    if (isNaN(igvPorcentaje)) igvPorcentaje = 0;
+
     const descuentoValor = subtotal * (descuentoPorcentaje / 100);
     const subtotalConDescuento = subtotal - descuentoValor;
     const igvValor = subtotalConDescuento * (igvPorcentaje / 100);
     const total = subtotalConDescuento + igvValor;
+
     document.getElementById('descuentoValor').value = descuentoValor.toFixed(2);
     document.getElementById('igvValor').value = igvValor.toFixed(2);
     document.getElementById('total').value = total.toFixed(2);
